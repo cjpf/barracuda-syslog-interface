@@ -5,6 +5,7 @@ from app.models import User
 
 
 class LoginForm(FlaskForm):
+    'Form used to authenticate'
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     # remember_me = BooleanField('Remember Me')
@@ -12,6 +13,7 @@ class LoginForm(FlaskForm):
 
 
 class RegistrationForm(FlaskForm):
+    'Form used to register a user'
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     password2 = PasswordField('Repeat Password', validators=[
@@ -25,11 +27,13 @@ class RegistrationForm(FlaskForm):
 
 
 class ResetPasswordRequestForm(FlaskForm):
+    'Form used to send password reset request'
     email = StringField('Email', validators=[DataRequired(), Email()])
     submit = SubmitField('Request Password Reset')
 
 
 class ResetPasswordForm(FlaskForm):
+    'Form used to accept new password'
     password = PasswordField('Password', validators=[DataRequired()])
     password2 = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Request Password Reset')
