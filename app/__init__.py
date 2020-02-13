@@ -1,5 +1,6 @@
 import os
 import logging
+import config
 from logging.handlers import SMTPHandler, RotatingFileHandler
 from flask import Flask
 from flask_login import LoginManager
@@ -8,7 +9,7 @@ from flask_migrate import Migrate
 from flask_moment import Moment
 from flask_mail import Mail
 from flask_bootstrap import Bootstrap
-from config import Config
+
 
 login = LoginManager()
 login.login_view = 'auth.login'
@@ -19,7 +20,7 @@ mail = Mail()
 bootstrap = Bootstrap()
 
 
-def create_app(config_class=Config):
+def create_app(config_class=config.DevelopmentConfig):
     app = Flask(__name__)
     app.config.from_object(config_class)
 

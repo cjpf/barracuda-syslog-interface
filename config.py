@@ -6,7 +6,8 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
 
 
-class Config(object):
+class BaseConfig(object):
+    'Base config class'
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         'DATABASE_URL') or \
@@ -19,3 +20,18 @@ class Config(object):
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     ADMINS = ['cjpf@charliejuliet.net']
     LOG_TO_STDOUT = os.environ.get('LOG_TO_STDOUT')
+    DEBUG = True
+    TESTING = False
+
+
+class DevelopmentConfig(object):
+    'Development environment specific config'
+    DEBUG = True
+    TESTING = True
+    SECRET_KEy = "wafoAFJ3j298jajoijf2"
+    
+
+class ProductionConfig(object):
+    'Production specific config'
+    DEBUG = False
+    SECRET_KEY = open('/path/to/secret/key/file').read()
