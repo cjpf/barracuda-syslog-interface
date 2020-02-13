@@ -34,4 +34,4 @@ class DevelopmentConfig(BaseConfig):
 class ProductionConfig(BaseConfig):
     'Production specific config'
     DEBUG = False
-    SECRET_KEY = open('/path/to/secret/key/file').read()
+    # SECRET_KEY = open('/path/to/secret/key/file').read()
