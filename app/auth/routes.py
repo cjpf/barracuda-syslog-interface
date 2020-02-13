@@ -10,6 +10,7 @@ from werkzeug.urls import url_parse
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
+    'Route for logging in to system'
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     form = LoginForm()
@@ -28,12 +29,14 @@ def login():
 
 @bp.route('/logout')
 def logout():
+    'Route for logging out of system'
     logout_user()
     return redirect(url_for('main.index'))
 
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
+    'Route for registering new user'
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     form = RegistrationForm()
@@ -49,6 +52,7 @@ def register():
 
 @bp.route('/reset_password_request', methods=['GET', 'POST'])
 def reset_password_request():
+    'Route for requesting password reset'
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     form = ResetPasswordRequestForm()
@@ -63,6 +67,7 @@ def reset_password_request():
 
 @bp.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
+    'Route for processing password reset'
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     user = User.verify_reset_password_token(token)

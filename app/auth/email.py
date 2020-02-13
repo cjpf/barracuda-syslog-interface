@@ -3,6 +3,7 @@ from app.email import send_mail
 
 
 def send_password_reset_email(user):
+    'Send password reset email with tokenized URL'
     token = user.get_reset_password_token()
     send_mail('[barracuda-syslog-tools] Reset Your Password',
               sender=current_app.config['ADMINS'][0],
