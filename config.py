@@ -24,14 +24,14 @@ class BaseConfig(object):
     TESTING = False
 
 
-class DevelopmentConfig(object):
+class DevelopmentConfig(BaseConfig):
     'Development environment specific config'
     DEBUG = True
     TESTING = True
     SECRET_KEy = "wafoAFJ3j298jajoijf2"
     
 
-class ProductionConfig(object):
+class ProductionConfig(BaseConfig):
     'Production specific config'
     DEBUG = False
     SECRET_KEY = open('/path/to/secret/key/file').read()

@@ -7,6 +7,7 @@ from app.main import bp
 
 @bp.before_request
 def before_request():
+    'Process before each request'
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
@@ -16,4 +17,5 @@ def before_request():
 @bp.route('/index', methods=['GET'])
 @login_required
 def index():
+    'Home Page'
     return render_template('index.html', title='Dashboard')

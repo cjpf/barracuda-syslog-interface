@@ -20,7 +20,11 @@ mail = Mail()
 bootstrap = Bootstrap()
 
 
-def create_app(config_class=config.DevelopmentConfig):
+def create_app(config_class):
+    '''
+    Creates a flask app
+    Requires a config class from config.py
+    '''
     app = Flask(__name__)
     app.config.from_object(config_class)
 
