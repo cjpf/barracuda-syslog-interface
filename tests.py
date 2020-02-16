@@ -60,7 +60,7 @@ class DomainModelCase(unittest.TestCase):
         db.drop_all()
         self.app_context.pop()
 
-    def test_do(self):
+    def test_domain(self):
         d = Account(id='201645')
         self.assertFalse(d.get_name())
         d.set_name('test.com')
