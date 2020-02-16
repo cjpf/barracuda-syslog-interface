@@ -55,23 +55,43 @@ class User(UserMixin, db.Model):
         return User.query.get(id)
 
 
-# class Message(db.Model):
-#     '''
-#     Message Model
-#     This model represents an email that passed through Barracuda Email Security Service
-#     '''
-#     id = db.Column(db.String(32), primary_key=True)
-#     account_id = db.Column(db.String(12), db.ForeignKey('account.id'))
-#     domain_id = db.Column(db.Integer, db.ForeignKey('domain.id'))
-#     src_ip = db.Column(db.String(16), index=True)
-#     # ptr_record = 
-#     # hdr_from = 
-#     # env_from = 
-#     # hdr_to = 
-#     # dst_domain = 
-#     # size = 
-#     # subject = 
-#     # timestamp = 
+class Message(db.Model):
+    '''
+    Message Model
+    This model represents an email that passed through Barracuda Email
+    Security Service
+    '''
+    id = db.Column(db.String(32), primary_key=True)
+    account_id = db.Column(db.String(12), db.ForeignKey('account.id'))
+    domain_id = db.Column(db.String(12), db.ForeignKey('domain.id'))
+    src_ip = db.Column(db.String(16), index=True)
+    ptr_record = db.Column(db.String(128))
+    hdr_from = db.Column(db.String(256))
+    env_from = db.Column(db.String(256))
+    hdr_to = db.Column(db.String(256))
+    dst_domain = db.Column(db.String(128))
+    size = db.Column(db.Integer)
+    subject = db.Column(db.String(512))
+    timestamp = db.Column(db.String(128))
+
+    def __repr__(self):
+        return '<Message {}>'.format(self.id)
+
+    # def add_recipient(self):
+
+    # def add_attachment(self):
+
+    def add_account(self, account_id):
+        a = Account.query.filter_by(id=account_id)
+        if not a:
+            db.session.add(a)
+            db.session.commit()
+
+    def add_domain(self, domain_id):
+        d = Domain.query.filter_by(id=domain_id)
+        if not d:
+            db.session.add(d)
+            db.session.commit()
 
 
 # class Recipient(db.Model):
@@ -79,13 +99,13 @@ class User(UserMixin, db.Model):
 #     Recipient Model
 #     This model represents the recipient for an email
 #     '''
-#     # id = 
-#     # action = 
-#     # reason = 
-#     # reason_extra = 
-#     # delivered = 
-#     # delivery_detail = 
-#     # email = 
+#     id = 
+#     action = 
+#     reason = 
+#     reason_extra = 
+#     delivered = 
+#     delivery_detail = 
+#     email = 
 
 
 # class Attachment(db.Model):
@@ -93,8 +113,8 @@ class User(UserMixin, db.Model):
 #     Attachment Model
 #     This model represents an attachment from an email
 #     '''
-#     # id = 
-#     # name = 
+#     id = db.Column(db.String(32), db.ForeignKey('message.id'))
+#     name = db.Column(db.String(256))
 
 
 class Account(db.Model):
