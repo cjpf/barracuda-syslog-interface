@@ -53,3 +53,69 @@ class User(UserMixin, db.Model):
         except:
             return
         return User.query.get(id)
+
+
+class Message(db.Model):
+    '''
+    Message Model
+    This model represents an email that passed through Barracuda Email Security Service
+    '''
+    id = db.Column(db.String(32), primary_key=True)
+    account_id = db.Column(db.String(12), db.ForeignKey('account.id'))
+    domain_id = db.Column(db.Integer(12), db.ForeignKey('domain.id'))
+    src_ip = db.Column(db.String(16), index=True)
+    # ptr_record = 
+    # hdr_from = 
+    # env_from = 
+    # hdr_to = 
+    # dst_domain = 
+    # size = 
+    # subject = 
+    # timestamp = 
+
+
+class Recipient(db.Model):
+    '''
+    Recipient Model
+    This model represents the recipient for an email
+    '''
+    # id = 
+    # action = 
+    # reason = 
+    # reason_extra = 
+    # delivered = 
+    # delivery_detail = 
+    # email = 
+
+
+class Attachment(db.Model):
+    '''
+    Attachment Model
+    This model represents an attachment from an email
+    '''
+    # id = 
+    # name = 
+
+
+class Account(db.Model):
+    '''
+    Account Model
+    This model represents an ESS account
+    '''
+    id = db.Column(db.String(12), primary_key=True)
+    name = db.Column(db.String(128))
+
+    def __repr__(self):
+        return '<Account {} {}>'.format(self.id, self.name)
+
+
+class Domain(db.Model):
+    '''
+    Domain Model
+    This model represents a domain from an ESS account
+    '''
+    id = db.Column(db.Integer(12), primary_key=True)
+    name = db.Column(db.String(128))
+
+    def __repr__(self):
+        return '<Domain {} {}>'.format(self.id, self.name)
