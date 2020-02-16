@@ -17,18 +17,16 @@ class UserModelCase(unittest.TestCase):
         self.app_context.push()
         db.create_all()
 
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+        self.app_context.pop()
 
-def tearDown(self):
-    db.session.remove()
-    db.drop_all()
-    self.app_context.pop()
-
-
-def test_password_hashing(self):
-    u = User(email='susan@test.com')
-    u.set_password('cat')
-    self.assertFalse(u.check_password('dog'))
-    self.assertTrue(u.check_password('cat'))
+    def test_password_hashing(self):
+        u = User(email='susan@test.com')
+        u.set_password('cat')
+        self.assertFalse(u.check_password('dog'))
+        self.assertTrue(u.check_password('cat'))
 
 
 if __name__ == '__main__':
