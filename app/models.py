@@ -53,3 +53,101 @@ class User(UserMixin, db.Model):
         except:
             return
         return User.query.get(id)
+
+
+class Message(db.Model):
+    '''
+    Message Model
+    This model represents an email that passed through Barracuda Email
+    Security Service
+    '''
+    id = db.Column(db.String(32), primary_key=True)
+    account_id = db.Column(db.String(12), db.ForeignKey('account.id'))
+    domain_id = db.Column(db.String(12), db.ForeignKey('domain.id'))
+    src_ip = db.Column(db.String(16), index=True)
+    ptr_record = db.Column(db.String(128))
+    hdr_from = db.Column(db.String(256))
+    env_from = db.Column(db.String(256))
+    hdr_to = db.Column(db.String(256))
+    dst_domain = db.Column(db.String(128))
+    size = db.Column(db.Integer)
+    subject = db.Column(db.String(512))
+    timestamp = db.Column(db.String(128))
+
+    def __repr__(self):
+        return '<Message {}>'.format(self.id)
+
+
+class Recipient(db.Model):
+    '''
+    Recipient Model
+    This model represents the recipient for an email
+    '''
+    id = db.Column(db.Integer, primary_key=True)
+    message_id = db.Column(db.String(32), db.ForeignKey('message.id'))
+    message = db.relationship(
+        'Message', backref=db.backref('recipients', lazy='dynamic'))
+    action = db.Column(db.String(32))
+    reason = db.Column(db.String(64))
+    reason_extra = db.Column(db.String(256))
+    delivered = db.Column(db.String(32))
+    delivery_detail = db.Column(db.String(1024))
+    email = db.Column(db.String(128))
+
+    def __repr__(self):
+        return '<Recipient {}>'.format(self.id)
+
+
+class Attachment(db.Model):
+    '''
+    Attachment Model
+    This model represents an attachment from an email
+    '''
+    id = db.Column(db.Integer, primary_key=True)
+    message_id = db.Column(db.String(32), db.ForeignKey('message.id'))
+    message = db.relationship(
+        'Message', backref=db.backref('attachments', lazy='dynamic'))
+    name = db.Column(db.String(256))
+
+    def __repr__(self):
+        return '<Attachment {}>'.format(self.id)
+
+
+class Account(db.Model):
+    '''
+    Account Model
+    This model represents an ESS account
+    '''
+    id = db.Column(db.String(12), primary_key=True)
+    name = db.Column(db.String(128))
+
+    def __repr__(self):
+        return '<Account {} {}>'.format(self.id, self.name)
+
+    def set_name(self, name):
+        'Set the Account Name'
+        self.name = name
+
+    def get_name(self):
+        'Get the Account Name'
+        return self.name
+
+
+class Domain(db.Model):
+    '''
+    Domain Model
+    This model represents a domain from an ESS account
+    '''
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128))
+
+    def __repr__(self):
+        return '<Domain {} {}>'.format(self.id, self.name)
+
+    def set_name(self, name):
+        'Set the Domain Name'
+        self.name = name
+
+    def get_name(self):
+        'Get the Domain Name'
+        return self.name

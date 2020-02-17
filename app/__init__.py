@@ -1,6 +1,5 @@
 import os
 import logging
-import config
 from logging.handlers import SMTPHandler, RotatingFileHandler
 from flask import Flask
 from flask_login import LoginManager
@@ -9,6 +8,7 @@ from flask_migrate import Migrate
 from flask_moment import Moment
 from flask_mail import Mail
 from flask_bootstrap import Bootstrap
+from flask_apscheduler import APScheduler
 
 
 login = LoginManager()
@@ -18,6 +18,7 @@ migrate = Migrate()
 moment = Moment()
 mail = Mail()
 bootstrap = Bootstrap()
+scheduler = APScheduler()
 
 
 def create_app(config_class):
@@ -44,11 +45,15 @@ def create_app(config_class):
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
 
+    from app.parse import bp as parse_bp
+    app.register_blueprint(parse_bp)
+
     if not app.debug and not app.testing:
         if app.config['MAIL_SERVER']:
             auth = None
             if app.config['MAIL_USERNAME'] or app.config['MAIL_PASSWORD']:
-                auth = (app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
+                auth = (app.config['MAIL_USERNAME'],
+                        app.config['MAIL_PASSWORD'])
             secure = None
             if app.config['MAIL_USE_TLS']:
                 secure = ()
@@ -60,20 +65,31 @@ def create_app(config_class):
             mail_handler.setLevel(logging.ERROR)
             app.logger.addHandler(mail_handler)
 
-        if app.config['LOG_TO_STDOUT']:
-            stream_handler = logging.StreamHandler()
-            stream_handler.setLevel(logging.INFO)
-            app.logger.addHandler(stream_handler)
-        else:
-            if not os.path.exists('logs'):
-                os.mkdir('logs')
-            file_handler = RotatingFileHandler('logs/barracuda-syslog-tools.log', maxBytes=10240, backupCount=10)
-            file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
-            file_handler.setLevel(logging.INFO)
-            app.logger.addHandler(file_handler)
+    if app.config['LOG_TO_STDOUT']:
+        stream_handler = logging.StreamHandler()
+        stream_handler.setLevel(logging.INFO)
+        app.logger.addHandler(stream_handler)
+    else:
+        if not os.path.exists('logs'):
+            os.mkdir('logs')
+        file_handler = RotatingFileHandler(
+            'logs/barracuda-syslog-tools.log', maxBytes=10240, backupCount=10)
+        file_handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
+        file_handler.setLevel(logging.INFO)
+        app.logger.addHandler(file_handler)
 
-        app.logger.setLevel(logging.INFO)
-        app.logger.info('barracuda-syslog-tools startup')
+    app.logger.setLevel(logging.INFO)
+    app.logger.info('barracuda-syslog-tools startup')
+
+    if app.config['SCHEDULER_API_ENABLED']:
+        app.logger.info("Scheduler API Enabled.  Starting Scheduler...")
+        try:
+            scheduler.init_app(app)
+            scheduler.start()
+            app.logger.info(scheduler.get_jobs()[0])
+        except Exception as e:
+            app.logger.info(e)
 
     return app
 
