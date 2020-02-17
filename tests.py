@@ -4,14 +4,9 @@ from app import create_app, db
 from app.models import User, Message, Recipient, Attachment, Account, Domain
 
 
-class TestConfig(config.BaseConfig):
-    TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite://'
-
-
 class UserModelCase(unittest.TestCase):
     def setUp(self):
-        self.app = create_app(TestConfig)
+        self.app = create_app(config.TestConfig)
         self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
@@ -39,7 +34,7 @@ class UserModelCase(unittest.TestCase):
 
 class MessageModelCase(unittest.TestCase):
     def setUp(self):
-        self.app = create_app(TestConfig)
+        self.app = create_app(config.TestConfig)
         self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
@@ -78,7 +73,7 @@ class MessageModelCase(unittest.TestCase):
 
 class RecipientModelCase(unittest.TestCase):
     def setUp(self):
-        self.app = create_app(TestConfig)
+        self.app = create_app(config.TestConfig)
         self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
@@ -111,7 +106,7 @@ class RecipientModelCase(unittest.TestCase):
 
 class AttachmentModelCase(unittest.TestCase):
     def setUp(self):
-        self.app = create_app(TestConfig)
+        self.app = create_app(config.TestConfig)
         self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
@@ -136,7 +131,7 @@ class AttachmentModelCase(unittest.TestCase):
 
 class AccountModelCase(unittest.TestCase):
     def setUp(self):
-        self.app = create_app(TestConfig)
+        self.app = create_app(config.TestConfig)
         self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
@@ -155,7 +150,7 @@ class AccountModelCase(unittest.TestCase):
 
 class DomainModelCase(unittest.TestCase):
     def setUp(self):
-        self.app = create_app(TestConfig)
+        self.app = create_app(config.TestConfig)
         self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
