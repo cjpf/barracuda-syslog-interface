@@ -94,6 +94,9 @@ class Recipient(db.Model):
     delivery_detail = db.Column(db.String(1024))
     email = db.Column(db.String(128))
 
+    def __repr__(self):
+        return '<Recipient {}>'.format(self.id)
+
 
 class Attachment(db.Model):
     '''
@@ -105,6 +108,9 @@ class Attachment(db.Model):
     message = db.relationship(
         'Message', backref=db.backref('attachments', lazy='dynamic'))
     name = db.Column(db.String(256))
+
+    def __repr__(self):
+        return '<Attachment {}>'.format(self.id)
 
 
 class Account(db.Model):
