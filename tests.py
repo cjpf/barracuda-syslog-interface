@@ -1,7 +1,7 @@
 import unittest
 import config
 from app import create_app, db
-from app.models import User, Message, Account, Domain
+from app.models import User, Message, Recipient, Attachment, Account, Domain
 
 
 class TestConfig(config.BaseConfig):
@@ -75,13 +75,63 @@ class MessageModelCase(unittest.TestCase):
             id='1578083234-893239-2956-1311577-2').first()
         self.assertFalse(m)
 
-    # def test_add_recipient(self):
 
-    # def test_add_attachment(self):
+class RecipientModelCase(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(TestConfig)
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+        db.create_all()
 
-    # def test_add_account(self):
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+        self.app_context.pop()
 
-    # def test_add_domain(self):
+    def test_add_recipient(self):
+        message_id = '1578083234-893239-2956-1311577-1'
+        action = 'allowed'
+        reason = ''
+        reason_extra = ''
+        delivered = 'delivered'
+        delivery_detail = 'mail.protonmail.ch:25:250 2.0.0 OK: queued as \
+                           01BF74010077'
+        email = 'bird_alerts@charliejuliet.net'
+        r = Recipient(message_id=message_id, action=action, reason=reason,
+                      reason_extra=reason_extra, delivered=delivered,
+                      delivery_detail=delivery_detail, email=email)
+        db.session.add(r)
+        db.session.commit()
+        db.session.refresh(r)
+        r = Recipient.query.filter_by(id=r.id).first()
+        self.assertTrue(r)
+        r = Recipient.query.filter_by(id=-1).first()
+        self.assertFalse(r)
+
+
+class AttachmentModelCase(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(TestConfig)
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+        self.app_context.pop()
+
+    def test_add_recipient(self):
+        message_id = '1578083234-893239-2956-1311577-1'
+        name = 'Attachment1.docx'
+        a = Attachment(message_id=message_id, name=name)
+        db.session.add(a)
+        db.session.commit()
+        db.session.refresh(a)
+        a = Attachment.query.filter_by(id=a.id).first()
+        self.assertTrue(a)
+        a = Attachment.query.filter_by(id=-1).first()
+        self.assertFalse(a)
 
 
 class AccountModelCase(unittest.TestCase):
@@ -116,7 +166,7 @@ class DomainModelCase(unittest.TestCase):
         self.app_context.pop()
 
     def test_set_domain_name(self):
-        d = Account(id='201645')
+        d = Domain(id='201645')
         self.assertFalse(d.get_name())
         d.set_name('test.com')
         self.assertTrue(d.get_name())

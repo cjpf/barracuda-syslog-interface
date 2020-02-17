@@ -77,44 +77,34 @@ class Message(db.Model):
     def __repr__(self):
         return '<Message {}>'.format(self.id)
 
-    # def add_recipient(self):
 
-    # def add_attachment(self):
-
-    def add_account(self, account_id):
-        a = Account.query.filter_by(id=account_id)
-        if not a:
-            db.session.add(a)
-            db.session.commit()
-
-    def add_domain(self, domain_id):
-        d = Domain.query.filter_by(id=domain_id)
-        if not d:
-            db.session.add(d)
-            db.session.commit()
-
-
-# class Recipient(db.Model):
-#     '''
-#     Recipient Model
-#     This model represents the recipient for an email
-#     '''
-#     id = 
-#     action = 
-#     reason = 
-#     reason_extra = 
-#     delivered = 
-#     delivery_detail = 
-#     email = 
+class Recipient(db.Model):
+    '''
+    Recipient Model
+    This model represents the recipient for an email
+    '''
+    id = db.Column(db.Integer, primary_key=True)
+    message_id = db.Column(db.String(32), db.ForeignKey('message.id'))
+    message = db.relationship(
+        'Message', backref=db.backref('recipients', lazy='dynamic'))
+    action = db.Column(db.String(32))
+    reason = db.Column(db.String(64))
+    reason_extra = db.Column(db.String(256))
+    delivered = db.Column(db.String(32))
+    delivery_detail = db.Column(db.String(1024))
+    email = db.Column(db.String(128))
 
 
-# class Attachment(db.Model):
-#     '''
-#     Attachment Model
-#     This model represents an attachment from an email
-#     '''
-#     id = db.Column(db.String(32), db.ForeignKey('message.id'))
-#     name = db.Column(db.String(256))
+class Attachment(db.Model):
+    '''
+    Attachment Model
+    This model represents an attachment from an email
+    '''
+    id = db.Column(db.Integer, primary_key=True)
+    message_id = db.Column(db.String(32), db.ForeignKey('message.id'))
+    message = db.relationship(
+        'Message', backref=db.backref('attachments', lazy='dynamic'))
+    name = db.Column(db.String(256))
 
 
 class Account(db.Model):
