@@ -1,6 +1,5 @@
 import os
 import logging
-import config
 from logging.handlers import SMTPHandler, RotatingFileHandler
 from flask import Flask
 from flask_login import LoginManager
@@ -9,6 +8,7 @@ from flask_migrate import Migrate
 from flask_moment import Moment
 from flask_mail import Mail
 from flask_bootstrap import Bootstrap
+from flask_apscheduler import APScheduler
 
 
 login = LoginManager()
