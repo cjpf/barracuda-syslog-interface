@@ -6,15 +6,10 @@ from app.models import Message, Recipient, Attachment, Account, Domain
 import config
 
 
-def hello_job():
-    print('Hello Job!')
-
-
 def parse_log():
     '''
     Parses ESS Log Data to store for the App
     '''
-    print('Building app context within parse_log()')
     app = create_app(config.JobConfig)
     app_context = app.app_context()
     app_context.push()
