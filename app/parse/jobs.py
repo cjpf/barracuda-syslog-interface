@@ -2,7 +2,7 @@ import re
 import json
 from pygtail import Pygtail
 from app import db
-from app.models import Message, Account, Domain
+from app.models import Message, Recipient, Attachment, Account, Domain
 
 
 def hello_job():
@@ -23,7 +23,26 @@ def parse_log():
         _store_account(data)
         _store_domain(data)
         _store_message(data)
+
+        if data['recipients']:
+            for recipient in data['recipients']:
+                _store_recipient(recipient, data['message_id'])
+
+        if data['attachments']:
+            for attachment in data['attachments']:
+                _store_attachment(attachment, data['message_id'])
+
         db.session.commit()
+
+
+def _store(item):
+    try:
+        db.session.add(item)
+        return True
+    except Exception as e:
+        db.rollback()
+        print(e)  # TODO log exception
+        return False
 
 
 def _store_message(data):
@@ -45,11 +64,7 @@ def _store_message(data):
             subject=data['subject'],
             timestamp=data['timestamp']
         )
-        try:
-            db.session.add(m)
-        except Exception as e:
-            db.rollback()
-            print(e)  # TODO log exception
+        return _store(m)
 
 
 def _message_exists(message_id):
@@ -58,17 +73,42 @@ def _message_exists(message_id):
         else False
 
 
+def _store_recipient(data, message_id):
+    'Creates new Recipient entry if Message has already been created'
+    print('Checking for existing Message ID...({})'.format(message_id))
+    if _message_exists(message_id):
+        print("Message ID found. Creating recipient entry.")
+        r = Recipient(
+            message_id=message_id,
+            action=data['action'],
+            reason=data['reason'],
+            reason_extra=data['reason_extra'],
+            delivered=data['delivered'],
+            delivery_detail=data['delivery_detail'],
+            email=data['email'],
+        )
+        return _store(r)
+
+
+def _store_attachment(data, message_id):
+    'Creates new Attachment entry if Message has already been created'
+    print('Checking for existing Message ID...({})'.format(message_id))
+    if _message_exists(message_id):
+        print("Message ID found. Creating attachment entry.")
+        a = Attachment(
+            message_id=message_id,
+            name=data['name']
+        )
+        return _store(a)
+
+
 def _store_account(data):
     'Creates new Account entry if not already created.'
     print("Checking for existing Account ID...({})".format(data['account_id']))
     if not _account_exists(data['account_id']):
         print("Account ID not found. Creating entry.")
         a = Account(account_id=data['account_id'])
-        try:
-            db.session.add(a)
-        except Exception as e:
-            db.rollback()
-            print(e)  # TODO log exception
+        return _store(a)
 
 
 def _account_exists(account_id):
@@ -83,11 +123,7 @@ def _store_domain(data):
     if not _domain_exists(data['domain_id']):
         print("Domain ID not found. Creating entry.")
         d = Domain(domain_id=data['domain_id'])
-        try:
-            db.session.add(d)
-        except Exception as e:
-            db.rollback()
-            print(e)  # TODO log exception
+        return _store(d)
 
 
 def _domain_exists(domain_id):
