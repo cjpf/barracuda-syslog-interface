@@ -64,6 +64,7 @@ def parse_log():
             db.session.add(m)
         db.session.commit()
 def _store_account(data):
+    'Creates new Account entry if not already created.'
     print("Checking for existing Account ID...({})".format(data['account_id']))
     if not _account_exists(data['account_id']):
         print("Account ID not found. Creating entry.")
@@ -76,6 +77,7 @@ def _store_account(data):
 
 
 def _account_exists(account_id):
+    'Checks to see if an Account already exists in the database.'
     return True if Account.query.filter_by(account_id=account_id).first() \
         else False
 
@@ -83,7 +85,7 @@ def _account_exists(account_id):
 def _is_test_entry(account_id, domain_id):
     '''
     This function checks to see if account id field is empty.
-    If this field is empty, the log entry is simply a 
+    If this field is empty, the log entry is simply a
     connection test from the service.
     '''
     if not account_id and not domain_id:
