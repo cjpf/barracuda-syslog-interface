@@ -1,6 +1,6 @@
 import os
 import logging
-from logging.handlers import SMTPHandler, RotatingFileHandler
+from logging.handlers import SMTPHandler, TimedRotatingFileHandler
 from flask import Flask
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
@@ -60,27 +60,29 @@ def create_app(config_class):
             mail_handler = SMTPHandler(
                 mailhost=(app.config['MAIL_SERVER'], app.config['MAIL_PORT']),
                 fromaddr='no-reply@' + app.config['MAIL_SERVER'],
-                toaddrs=app.config['ADMINS'], subject='barracuda-syslog-tools Failure',
+                toaddrs=app.config['ADMINS'],
+                subject='barracuda-syslog-tools Failure',
                 credentials=auth, secure=secure)
             mail_handler.setLevel(logging.ERROR)
             app.logger.addHandler(mail_handler)
 
-    if app.config['LOG_TO_STDOUT']:
-        stream_handler = logging.StreamHandler()
-        stream_handler.setLevel(logging.INFO)
-        app.logger.addHandler(stream_handler)
-    else:
-        if not os.path.exists('logs'):
-            os.mkdir('logs')
-        file_handler = RotatingFileHandler(
-            'logs/barracuda-syslog-tools.log', maxBytes=10240, backupCount=10)
+    if not os.path.exists('logs'):
+        os.mkdir('logs')
+    if not app.config['JOB_CONFIG']:
+        file_handler = TimedRotatingFileHandler(
+            'logs/barracuda-syslog-tools.log',
+            when='D',
+            interval=1,
+            backupCount=14)
         file_handler.setFormatter(logging.Formatter(
-            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
+            '%(asctime)s %(levelname)s: %(message)s \
+                [in %(pathname)s:%(lineno)d]'))
         file_handler.setLevel(logging.INFO)
         app.logger.addHandler(file_handler)
-
-    app.logger.setLevel(logging.INFO)
-    app.logger.info('barracuda-syslog-tools startup')
+        app.logger.setLevel(logging.INFO)
+        app.logger.info('barracuda-syslog-tools startup')
+    else:
+        app.logger.info('creating parse_log app')
 
     if app.config['SCHEDULER_API_ENABLED']:
         app.logger.info("Scheduler API Enabled.  Starting Scheduler...")
@@ -94,4 +96,4 @@ def create_app(config_class):
     return app
 
 
-from app import models
+# from app import models

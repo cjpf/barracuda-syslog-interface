@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from app.parse import jobs
 
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
 
@@ -26,11 +27,11 @@ class BaseConfig(object):
     JOBS = [
         {
             'id': 'job1',
-            'func': jobs.hello_job,
+            'func': jobs.parse_log,
             'trigger': 'cron',
             'day_of_week': '*',
             'hour': '*',
-            'minute': '10,25,40,55'
+            'minute': '*'
         }
     ]
     # SCHEDULER_JOBSTORES = {
@@ -44,6 +45,7 @@ class BaseConfig(object):
         'max_instances': 3
     }
     SCHEDULER_API_ENABLED = True
+    JOB_CONFIG = False
     DEBUG = True
     TESTING = False
 
@@ -67,3 +69,11 @@ class TestConfig(BaseConfig):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = 'sqlite://'
     SCHEDULER_API_ENABLED = False
+
+
+class JobConfig(BaseConfig):
+    'Config for running ESS Log parsing jobs'
+    SCHEDULER_API_ENABLED = False
+    JOB_CONFIG = True
+    DEBUG = True
+    TESTING = False
