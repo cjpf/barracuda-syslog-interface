@@ -17,7 +17,7 @@ def parse_log():
         data = re.findall(r'\{.*\}', line)
         data = json.loads(data[0])
 
-        if _is_test_entry(data['account_id'], data['domain_id']):
+        if _is_connection_test(data['account_id'], data['domain_id']):
             continue
 
         _store_account(data)
@@ -96,7 +96,7 @@ def _domain_exists(domain_id):
         else False
 
 
-def _is_test_entry(account_id, domain_id):
+def _is_connection_test(account_id, domain_id):
     '''
     This function checks to see if account id field is empty.
     If this field is empty, the log entry is simply a
