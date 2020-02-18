@@ -16,16 +16,7 @@ def parse_log():
     app_context = app.app_context()
     app_context.push()
 
-    # Check inode in .offset file and compare to inode of log file to detect rotation
-    # if inode is different, change offset value in .offset file to 0
-    # with io.open(app.config['ESS_LOG_OFFSET']) as f:
-    #     offset_inode = re.findall(r'\d+', f.readline())
-    #     offset_inode = json.loads(offset_inode[0])
-    #     log_inode = os.stat(app.config['ESS_LOG_OFFSET']).st_ino
-    #     print(log_inode)
-    #     print(type(log_inode))
-    #     print(offset_inode)
-    #     print(type(offset_inode))
+    _detect_rotated_log(app)
 
     with app.app_context():
         for line in Pygtail(app.config['ESS_LOG'],
@@ -73,6 +64,21 @@ def parse_log():
 
     app.logger.info('Closing app context for parse_log')
     app_context.pop()
+
+
+def _detect_rotated_log(app):
+    '''
+    Check inode stored in pygtail offset file and compare to inode of
+    log file to detect rotations.
+    if inode is different, delete offset file to reset
+    '''
+    with io.open(app.config['ESS_LOG_OFFSET']) as f:
+        log_inode = re.findall(r'\d+', f.readline())
+        log_inode = json.loads(log_inode[0])
+        real_inode = os.stat(app.config['ESS_LOG']).st_ino
+        if real_inode != log_inode:
+            app.logger.info('inode value mismatch. Logs must be rotated. Resetting pygtail offset file.')
+            os.remove(app.config['ESS_LOG_OFFSET'])
 
 
 def _is_connection_test(account_id, domain_id):
