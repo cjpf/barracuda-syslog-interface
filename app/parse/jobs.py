@@ -1,8 +1,9 @@
 from pygtail import Pygtail
 import re
 import json
-from app.models import Message, Account, Domain
+from pygtail import Pygtail
 from app import db
+from app.models import Message, Account, Domain
 
 
 def hello_job():
