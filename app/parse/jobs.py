@@ -1,8 +1,9 @@
 import re
 import json
 from pygtail import Pygtail
-from app import db
+from app import db, create_app
 from app.models import Message, Recipient, Attachment, Account, Domain
+import config
 
 
 def hello_job():
@@ -13,25 +14,34 @@ def parse_log():
     '''
     Parses ESS Log Data to store for the App
     '''
-    for line in Pygtail("ess.log", paranoid=True):
-        data = re.findall(r'\{.*\}', line)
-        data = json.loads(data[0])
+    print('Building app context within parse_log()')
+    app = create_app(config.JobConfig)
+    app_context = app.app_context()
+    app_context.push()
 
-        if _is_connection_test(data['account_id'], data['domain_id']):
-            continue
+    with app.app_context():
+        for line in Pygtail(app.config['ESS_LOG'], paranoid=True):
+            data = re.findall(r'\{.*\}', line)
+            data = json.loads(data[0])
 
-        _store_account(data)
-        _store_domain(data)
-        _store_message(data)
-        if data['recipients']:
-            for recipient in data['recipients']:
-                _store_recipient(recipient, data['message_id'])
+            if _is_connection_test(data['account_id'], data['domain_id']):
+                continue
 
-        if data['attachments']:
-            for attachment in data['attachments']:
-                _store_attachment(attachment, data['message_id'])
+            _store_account(data)
+            _store_domain(data)
+            _store_message(data)
+            if data['recipients']:
+                for recipient in data['recipients']:
+                    _store_recipient(recipient, data['message_id'])
 
-        db.session.commit()
+            if data['attachments']:
+                for attachment in data['attachments']:
+                    _store_attachment(attachment, data['message_id'])
+
+            db.session.commit()
+
+    print('Closing app context for parse_log()')
+    app_context.pop()
 
 
 def _add(item):
