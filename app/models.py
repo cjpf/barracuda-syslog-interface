@@ -24,7 +24,7 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
-        return '<User {}>'.format(self.username)
+        return '<User {}>'.format(self.email)
 
     def set_password(self, password):
         'Set the users password'
@@ -61,9 +61,9 @@ class Message(db.Model):
     This model represents an email that passed through Barracuda Email
     Security Service
     '''
-    id = db.Column(db.String(32), primary_key=True)
-    account_id = db.Column(db.String(12), db.ForeignKey('account.id'))
-    domain_id = db.Column(db.String(12), db.ForeignKey('domain.id'))
+    message_id = db.Column(db.String(32), primary_key=True)
+    account_id = db.Column(db.String(12), db.ForeignKey('account.account_id'))
+    domain_id = db.Column(db.String(12), db.ForeignKey('domain.domain_id'))
     src_ip = db.Column(db.String(16), index=True)
     ptr_record = db.Column(db.String(128))
     hdr_from = db.Column(db.String(256))
@@ -75,7 +75,7 @@ class Message(db.Model):
     timestamp = db.Column(db.String(128))
 
     def __repr__(self):
-        return '<Message {}>'.format(self.id)
+        return '<Message {}>'.format(self.message_id)
 
 
 class Recipient(db.Model):
@@ -84,7 +84,7 @@ class Recipient(db.Model):
     This model represents the recipient for an email
     '''
     id = db.Column(db.Integer, primary_key=True)
-    message_id = db.Column(db.String(32), db.ForeignKey('message.id'))
+    message_id = db.Column(db.String(32), db.ForeignKey('message.message_id'))
     message = db.relationship(
         'Message', backref=db.backref('recipients', lazy='dynamic'))
     action = db.Column(db.String(32))
@@ -104,7 +104,7 @@ class Attachment(db.Model):
     This model represents an attachment from an email
     '''
     id = db.Column(db.Integer, primary_key=True)
-    message_id = db.Column(db.String(32), db.ForeignKey('message.id'))
+    message_id = db.Column(db.String(32), db.ForeignKey('message.message_id'))
     message = db.relationship(
         'Message', backref=db.backref('attachments', lazy='dynamic'))
     name = db.Column(db.String(256))
@@ -118,11 +118,11 @@ class Account(db.Model):
     Account Model
     This model represents an ESS account
     '''
-    id = db.Column(db.String(12), primary_key=True)
+    account_id = db.Column(db.String(12), primary_key=True)
     name = db.Column(db.String(128))
 
     def __repr__(self):
-        return '<Account {} {}>'.format(self.id, self.name)
+        return '<Account {} {}>'.format(self.account_id, self.name)
 
     def set_name(self, name):
         'Set the Account Name'
@@ -138,11 +138,11 @@ class Domain(db.Model):
     Domain Model
     This model represents a domain from an ESS account
     '''
-    id = db.Column(db.Integer, primary_key=True)
+    domain_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128))
 
     def __repr__(self):
-        return '<Domain {} {}>'.format(self.id, self.name)
+        return '<Domain {} {}>'.format(self.domain_id, self.name)
 
     def set_name(self, name):
         'Set the Domain Name'

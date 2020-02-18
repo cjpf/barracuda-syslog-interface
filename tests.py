@@ -45,7 +45,7 @@ class MessageModelCase(unittest.TestCase):
         self.app_context.pop()
 
     def test_add_message(self):
-        id = '1578083234-893239-2956-1311577-1'
+        message_id = '1578083234-893239-2956-1311577-1'
         account_id = 'ESS101010'
         domain_id = '123456'
         src_ip = '23.229.13.132'
@@ -57,7 +57,7 @@ class MessageModelCase(unittest.TestCase):
         size = 5350
         subject = "banned: 1231498134 from this"
         timestamp = "2020-01-03T20:27:18+0000"
-        m = Message(id=id, account_id=account_id, domain_id=domain_id,
+        m = Message(message_id=message_id, account_id=account_id, domain_id=domain_id,
                     src_ip=src_ip, ptr_record=ptr_record, hdr_from=hdr_from,
                     env_from=env_from, hdr_to=hdr_to, dst_domain=dst_domain,
                     size=size, subject=subject, timestamp=timestamp)
@@ -142,7 +142,7 @@ class AccountModelCase(unittest.TestCase):
         self.app_context.pop()
 
     def test_set_account_name(self):
-        a = Account(id='ESS000001')
+        a = Account(account_id='ESS000001')
         self.assertFalse(a.get_name())
         a.set_name('Test Name')
         self.assertTrue(a.get_name())
@@ -161,7 +161,7 @@ class DomainModelCase(unittest.TestCase):
         self.app_context.pop()
 
     def test_set_domain_name(self):
-        d = Domain(id='201645')
+        d = Domain(domain_id='201645')
         self.assertFalse(d.get_name())
         d.set_name('test.com')
         self.assertTrue(d.get_name())
