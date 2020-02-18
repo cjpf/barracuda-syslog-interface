@@ -64,10 +64,10 @@ class MessageModelCase(unittest.TestCase):
         db.session.add(m)
         db.session.commit()
         m = Message.query.filter_by(
-            id='1578083234-893239-2956-1311577-1').first()
+            message_id='1578083234-893239-2956-1311577-1').first()
         self.assertTrue(m)
         m = Message.query.filter_by(
-            id='1578083234-893239-2956-1311577-2').first()
+            message_id='1578083234-893239-2956-1311577-2').first()
         self.assertFalse(m)
 
 
