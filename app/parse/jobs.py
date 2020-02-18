@@ -60,6 +60,21 @@ def parse_log():
             )
             db.session.add(m)
         db.session.commit()
+def _store_account(data):
+    print("Checking for existing Account ID...({})".format(data['account_id']))
+    if not _account_exists(data['account_id']):
+        print("Account ID not found. Creating entry.")
+        a = Account(account_id=data['account_id'])
+        try:
+            db.session.add(a)
+        except Exception as e:
+            db.rollback()
+            print(e)  # TODO log exception
+
+
+def _account_exists(account_id):
+    return True if Account.query.filter_by(account_id=account_id).first() \
+        else False
 
 
 def _is_test_entry(account_id, domain_id):
