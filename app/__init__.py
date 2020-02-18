@@ -66,28 +66,23 @@ def create_app(config_class):
             mail_handler.setLevel(logging.ERROR)
             app.logger.addHandler(mail_handler)
 
-    if app.config['LOG_TO_STDOUT']:
-        stream_handler = logging.StreamHandler()
-        stream_handler.setLevel(logging.INFO)
-        app.logger.addHandler(stream_handler)
+    if not os.path.exists('logs'):
+        os.mkdir('logs')
+    if not app.config['JOB_CONFIG']:
+        file_handler = TimedRotatingFileHandler(
+            'logs/barracuda-syslog-tools.log',
+            when='D',
+            interval=1,
+            backupCount=14)
+        file_handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s \
+                [in %(pathname)s:%(lineno)d]'))
+        file_handler.setLevel(logging.INFO)
+        app.logger.addHandler(file_handler)
+        app.logger.setLevel(logging.INFO)
+        app.logger.info('barracuda-syslog-tools startup')
     else:
-        if not os.path.exists('logs'):
-            os.mkdir('logs')
-        if not app.config['JOB_CONFIG']:
-            file_handler = TimedRotatingFileHandler(
-                'logs/barracuda-syslog-tools.log',
-                when='D',
-                interval=1,
-                backupCount=14)
-            file_handler.setFormatter(logging.Formatter(
-                '%(asctime)s %(levelname)s: %(message)s \
-                    [in %(pathname)s:%(lineno)d]'))
-            file_handler.setLevel(logging.INFO)
-            app.logger.addHandler(file_handler)
-            app.logger.setLevel(logging.INFO)
-            app.logger.info('barracuda-syslog-tools startup')
-        else:
-            app.logger.info('creating parse_log app')
+        app.logger.info('creating parse_log app')
 
     if app.config['SCHEDULER_API_ENABLED']:
         app.logger.info("Scheduler API Enabled.  Starting Scheduler...")
