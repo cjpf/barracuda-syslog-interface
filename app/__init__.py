@@ -60,7 +60,8 @@ def create_app(config_class):
             mail_handler = SMTPHandler(
                 mailhost=(app.config['MAIL_SERVER'], app.config['MAIL_PORT']),
                 fromaddr='no-reply@' + app.config['MAIL_SERVER'],
-                toaddrs=app.config['ADMINS'], subject='barracuda-syslog-tools Failure',
+                toaddrs=app.config['ADMINS'],
+                subject='barracuda-syslog-tools Failure',
                 credentials=auth, secure=secure)
             mail_handler.setLevel(logging.ERROR)
             app.logger.addHandler(mail_handler)
@@ -75,12 +76,16 @@ def create_app(config_class):
         file_handler = RotatingFileHandler(
             'logs/barracuda-syslog-tools.log', maxBytes=10240, backupCount=10)
         file_handler.setFormatter(logging.Formatter(
-            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
+            '%(asctime)s %(levelname)s: %(message)s \
+                [in %(pathname)s:%(lineno)d]'))
         file_handler.setLevel(logging.INFO)
         app.logger.addHandler(file_handler)
 
-    app.logger.setLevel(logging.INFO)
-    app.logger.info('barracuda-syslog-tools startup')
+    if not app.config['JOB_CONFIG']:
+        app.logger.setLevel(logging.INFO)
+        app.logger.info('barracuda-syslog-tools startup')
+    else:
+        app.logger.info('creating parse_log app')
 
     if app.config['SCHEDULER_API_ENABLED']:
         app.logger.info("Scheduler API Enabled.  Starting Scheduler...")
@@ -94,4 +99,4 @@ def create_app(config_class):
     return app
 
 
-from app import models
+# from app import models
