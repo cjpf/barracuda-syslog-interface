@@ -95,7 +95,7 @@ class Recipient(db.Model):
     email = db.Column(db.String(128))
 
     def __repr__(self):
-        return '<Recipient {}>'.format(self.id)
+        return '<Recipient {}, from Message {}>'.format(self.id, self.message_id)
 
 
 class Attachment(db.Model):
@@ -110,7 +110,7 @@ class Attachment(db.Model):
     name = db.Column(db.String(256))
 
     def __repr__(self):
-        return '<Attachment {}>'.format(self.id)
+        return '<Attachment {}, from Message {}>'.format(self.id, self.message_id)
 
 
 class Account(db.Model):
