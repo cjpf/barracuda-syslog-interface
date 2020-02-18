@@ -94,6 +94,3 @@ def create_app(config_class):
             app.logger.info(e)
 
     return app
-
-
-# from app import models

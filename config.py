@@ -24,6 +24,8 @@ class BaseConfig(object):
     LOG_TO_STDOUT = os.environ.get('LOG_TO_STDOUT')
     ESS_LOG = os.environ.get('ESS_LOG') or \
         'ess.log'
+    ESS_LOG_OFFSET = os.environ.get('ESS_LOG_OFFSET') or \
+        'ess.log.offset'
     JOBS = [
         {
             'id': 'job1',
