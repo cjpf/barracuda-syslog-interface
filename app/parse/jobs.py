@@ -35,7 +35,7 @@ def parse_log():
         db.session.commit()
 
 
-def _store(item):
+def _add(item):
     try:
         db.session.add(item)
         return True
@@ -64,7 +64,7 @@ def _store_message(data):
             subject=data['subject'],
             timestamp=data['timestamp']
         )
-        return _store(m)
+        return _add(m)
 
 
 def _message_exists(message_id):
@@ -87,7 +87,7 @@ def _store_recipient(data, message_id):
             delivery_detail=data['delivery_detail'],
             email=data['email'],
         )
-        return _store(r)
+        return _add(r)
 
 
 def _store_attachment(data, message_id):
@@ -99,7 +99,7 @@ def _store_attachment(data, message_id):
             message_id=message_id,
             name=data['name']
         )
-        return _store(a)
+        return _add(a)
 
 
 def _store_account(data):
@@ -108,7 +108,7 @@ def _store_account(data):
     if not _account_exists(data['account_id']):
         print("Account ID not found. Creating entry.")
         a = Account(account_id=data['account_id'])
-        return _store(a)
+        return _add(a)
 
 
 def _account_exists(account_id):
@@ -123,7 +123,7 @@ def _store_domain(data):
     if not _domain_exists(data['domain_id']):
         print("Domain ID not found. Creating entry.")
         d = Domain(domain_id=data['domain_id'])
-        return _store(d)
+        return _add(d)
 
 
 def _domain_exists(domain_id):
