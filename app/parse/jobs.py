@@ -1,4 +1,3 @@
-from pygtail import Pygtail
 import re
 import json
 from pygtail import Pygtail
@@ -11,6 +10,9 @@ def hello_job():
 
 
 def parse_log():
+    '''
+    Parses ESS Log Data to store for the App
+    '''
     for line in Pygtail("ess.log", paranoid=True):
         data = re.findall(r'\{.*\}', line)
         data = json.loads(data[0])
