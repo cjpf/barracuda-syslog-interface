@@ -23,7 +23,6 @@ def parse_log():
         _store_account(data)
         _store_domain(data)
         _store_message(data)
-
         if data['recipients']:
             for recipient in data['recipients']:
                 _store_recipient(recipient, data['message_id'])
@@ -40,7 +39,7 @@ def _add(item):
         db.session.add(item)
         return True
     except Exception as e:
-        db.rollback()
+        db.session.rollback()
         print(e)  # TODO log exception
         return False
 
