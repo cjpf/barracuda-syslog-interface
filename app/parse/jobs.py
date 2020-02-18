@@ -41,7 +41,7 @@ def parse_log():
 
             db.session.commit()
 
-    app.logger.info('Closing app context for parse_log()')
+    app.logger.info('Closing app context for parse_log')
     app_context.pop()
 
 
