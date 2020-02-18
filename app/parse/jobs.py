@@ -1,10 +1,8 @@
 from pygtail import Pygtail
-import sys
 import re
 import json
 from app.models import Message, Account, Domain
 from app import db
-
 
 
 def hello_job():
@@ -12,10 +10,10 @@ def hello_job():
 
 
 def parse_log():
-    for line in Pygtail("ess.log"):
+    for line in Pygtail("ess.log", paranoid=True):
         data = re.findall(r'\{.*\}', line)
         data = json.loads(data[0])
-        id = data['message_id']
+        message_id = data['message_id']
         account_id = data['account_id']
         domain_id = data['domain_id']
         src_ip = data['src_ip']
@@ -28,21 +26,48 @@ def parse_log():
         subject = data['subject']
         timestamp = data['timestamp']
 
-        #check if account id exists in acct table
-        #   if not, add new acct to acct table
-        if not Account.query.filter_by(id=account_id).first():
-            a = Account(id=account_id)
+        if _is_test_entry(account_id, domain_id):
+            continue
+
+        print("Checking for existing Account ID...({})".format(account_id))
+        if not Account.query.filter_by(account_id=account_id).first():
+            print("Account ID not found. Creating entry.")
+            a = Account(account_id=account_id)
             db.session.add(a)
 
-        if not Domain.query.filter_by(id=domain_id).first():
-            d = Domain(id=domain_id)
+        print("Checking for existing Domain ID...({})".format(domain_id))
+        if not Domain.query.filter_by(domain_id=domain_id).first():
+            print("Domain ID not found. Creating entry.")
+            d = Domain(domain_id=domain_id)
             db.session.add(d)
 
-        if not Message.query.filter_by(id=id).first():
-            m = Message(id=id, account_id=account_id, domain_id=domain_id,
-                        src_ip=src_ip, ptr_record=ptr_record, hdr_from=hdr_from,
-                        env_from=env_from, hdr_to=hdr_to, dst_domain=dst_domain,
-                        size=size, subject=subject, timestamp=timestamp)
+        print("Checking for existing Message ID...({})".format(message_id))
+        if not Message.query.filter_by(message_id=message_id).first():
+            print("Message ID not found. Creating entry.")
+            m = Message(
+                message_id=message_id,
+                account_id=account_id,
+                domain_id=domain_id,
+                src_ip=src_ip,
+                ptr_record=ptr_record,
+                hdr_from=hdr_from,
+                env_from=env_from,
+                hdr_to=hdr_to,
+                dst_domain=dst_domain,
+                size=size,
+                subject=subject,
+                timestamp=timestamp
+            )
             db.session.add(m)
         db.session.commit()
-    
+
+
+def _is_test_entry(account_id, domain_id):
+    '''
+    This function checks to see if account id field is empty.
+    If this field is empty, the log entry is simply a 
+    connection test from the service.
+    '''
+    if not account_id and not domain_id:
+        return True
+    return False
