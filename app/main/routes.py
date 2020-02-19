@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import render_template, jsonify, url_for
+from flask import render_template, url_for
 from flask_login import login_required, current_user
 from app import db
 from app.main import bp
@@ -24,6 +24,7 @@ def index():
 
 @bp.route('/messages')
 @bp.route('/messages/<int:page>')
+@login_required
 def messages(page=1):
     messages = Message.query.order_by(
         Message.timestamp.desc()).paginate(page, 15, False)
