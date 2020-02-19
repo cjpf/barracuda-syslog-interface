@@ -72,13 +72,17 @@ def _detect_rotated_log(app):
     log file to detect rotations.
     if inode is different, delete offset file to reset
     '''
-    with io.open(app.config['ESS_LOG_OFFSET']) as f:
-        log_inode = re.findall(r'\d+', f.readline())
-        log_inode = json.loads(log_inode[0])
-        real_inode = os.stat(app.config['ESS_LOG']).st_ino
-        if real_inode != log_inode:
-            app.logger.info('inode value mismatch. Logs must be rotated. Resetting pygtail offset file.')
-            os.remove(app.config['ESS_LOG_OFFSET'])
+    try:
+        with io.open(app.config['ESS_LOG_OFFSET']) as f:
+            log_inode = re.findall(r'\d+', f.readline())
+            log_inode = json.loads(log_inode[0])
+            real_inode = os.stat(app.config['ESS_LOG']).st_ino
+            if real_inode != log_inode:
+                app.logger.info('inode value mismatch. Logs must be rotated. Resetting pygtail offset file.')
+                os.remove(app.config['ESS_LOG_OFFSET'])
+    except Exception:
+        app.logger.info('pygtail offset file not found')
+        return
 
 
 def _is_connection_test(account_id, domain_id):
