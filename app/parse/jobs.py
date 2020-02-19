@@ -72,13 +72,18 @@ def _detect_rotated_log(app):
     log file to detect rotations.
     if inode is different, delete offset file to reset
     '''
-    with io.open(app.config['ESS_LOG_OFFSET']) as f:
-        log_inode = re.findall(r'\d+', f.readline())
-        log_inode = json.loads(log_inode[0])
-        real_inode = os.stat(app.config['ESS_LOG']).st_ino
-        if real_inode != log_inode:
-            app.logger.info('inode value mismatch. Logs must be rotated. Resetting pygtail offset file.')
-            os.remove(app.config['ESS_LOG_OFFSET'])
+    try:
+        with io.open(app.config['ESS_LOG_OFFSET']) as f:
+            log_inode = re.findall(r'\d+', f.readline())
+            log_inode = json.loads(log_inode[0])
+            real_inode = os.stat(app.config['ESS_LOG']).st_ino
+            if real_inode != log_inode:
+                app.logger.info(
+                    'inode value mismatch. Resetting pygtail offset file.')
+                os.remove(app.config['ESS_LOG_OFFSET'])
+    except Exception:
+        app.logger.info('pygtail offset file not found')
+        return
 
 
 def _is_connection_test(account_id, domain_id):
@@ -92,7 +97,8 @@ def _is_connection_test(account_id, domain_id):
     return False
 
 
-def _add(logger, item):
+def _add(item):
+    'Add an item to the db'
     try:
         db.session.add(item)
         return True
@@ -109,7 +115,7 @@ def _store_account(logger, data):
         logger.info("Account ID NOT FOUND. Creating Account.")
         a = Account(account_id=data['account_id'])
         try:
-            _add(logger, a)
+            _add(a)
         except Exception as e:
             raise Exception(e)
 
@@ -122,7 +128,7 @@ def _store_attachment(logger, data, message_id):
         name=data['name']
     )
     try:
-        _add(logger, a)
+        _add(a)
     except Exception as e:
         raise Exception(e)
 
@@ -136,7 +142,7 @@ def _store_domain(logger, data):
         logger.info("Domain ID NOT FOUND. Creating Domain.")
         d = Domain(domain_id=data['domain_id'])
         try:
-            _add(logger, d)
+            _add(d)
         except Exception as e:
             raise Exception(e)
 
@@ -159,7 +165,7 @@ def _store_message(logger, data):
         timestamp=data['timestamp']
     )
     try:
-        _add(logger, m)
+        _add(m)
     except Exception as e:
         raise Exception(e)
 
@@ -177,7 +183,7 @@ def _store_recipient(logger, data, message_id):
         email=data['email'],
     )
     try:
-        _add(logger, r)
+        _add(r)
     except Exception as e:
         raise Exception(e)
 
