@@ -43,6 +43,11 @@
                 >Account</a
               >
             </li>
+            <li>
+              <a href="{{ url_for('settings.settings') }}"
+                >Settings</a
+              >
+            </li>
             <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
             {% endif %}
           </ul>
