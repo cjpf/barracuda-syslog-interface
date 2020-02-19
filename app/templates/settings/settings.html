@@ -1,5 +1,6 @@
 {% extends "base.html" %} {% import 'bootstrap/wtf.html' as wtf %} {% block
 app_content %}
+
 <h1>Settings</h1>
 <h3>Domains</h3>
 <div class="container">
@@ -19,9 +20,17 @@ app_content %}
       {% else %}
       <tr class="bg-danger">
       {% endif %}
+
         <th scope="row">{{ loop.index }}</th>
-        <td>{{ domain.domain_id }}</td>
-        <td>{{ domain.name }}</td>
+
+        <td id='{{ domain.domain_id }}'>{{ domain.domain_id }}</td>
+
+        {% if domain.domain_id in guesses %}
+        <td class='{{ domain.name }}'>{{ guesses[domain.domain_id] }}</td>
+        {% else %}
+        <td class='{{ domain.name }}'>{{ domain.name }}</td>
+        {% endif %}
+
         <td>
           {% if domain.name %}
           <a
