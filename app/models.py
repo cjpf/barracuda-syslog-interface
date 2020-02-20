@@ -12,6 +12,39 @@ def load_user(id):
     return User.query.get(int(id))
 
 
+class PaginatedAPIMixin(object):
+    '''
+    A template for paginated resource collections
+    '''
+    @staticmethod
+    def to_collection_dict(query, page, per_page, endpoint, **kwargs):
+        resources = query.paginate(page, per_page, False)
+        data = {
+            'items': [item.to_dict() for item in resources.items],
+            '_meta': {
+                'page': page,
+                'per_page': per_page,
+                'total_pages': resources.pages,
+                'total_items': resources.total
+            },
+            '_links': {
+                'self': url_for(endpoint,
+                                page=page,
+                                per_page=per_page,
+                                **kwargs),
+                'next': url_for(endpoint,
+                                page=page + 1,
+                                per_page=per_page,
+                                **kwargs) if resources.has_next else None,
+                'prev': url_for(endpoint,
+                                page=page - 1,
+                                per_page=per_page,
+                                **kwargs) if resources.has_prev else None
+            }
+        }
+        return data
+
+
 class User(PaginatedAPIMixin, UserMixin, db.Model):
     '''
     User Model
@@ -24,7 +57,7 @@ class User(PaginatedAPIMixin, UserMixin, db.Model):
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
-        return '<User {}>'.format(self.email)
+        return '<User[{}] {}>'.format(self.id, self.email)
 
     def set_password(self, password):
         '''
@@ -193,36 +226,3 @@ class Domain(db.Model):
         Get the Domain Name
         '''
         return self.name
-
-
-class PaginatedAPIMixin(object):
-    '''
-    A template for paginated resource collections
-    '''
-    @staticmethod
-    def to_collection_dict(query, page, per_page, endpoint, **kwargs):
-        resources = query.paginate(page, per_page, False)
-        data = {
-            'items': [item.to_dict() for item in resources.items],
-            '_meta': {
-                'page': page,
-                'per_page': per_page,
-                'total_pages': resources.pages,
-                'total_items': resources.total
-            },
-            '_links': {
-                'self': url_for(endpoint,
-                                page=page,
-                                per_page=per_page,
-                                **kwargs),
-                'next': url_for(endpoint,
-                                page=page + 1,
-                                per_page=per_page,
-                                **kwargs) if resources.has_next else None,
-                'prev': url_for(endpoint,
-                                page=page - 1,
-                                per_page=per_page,
-                                **kwargs) if resources.has_prev else None
-            }
-        }
-        return data
