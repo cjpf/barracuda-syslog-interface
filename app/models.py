@@ -159,11 +159,15 @@ class Account(db.Model):
         return '<Account {} {}>'.format(self.account_id, self.name)
 
     def set_name(self, name):
-        'Set the Account Name'
+        '''
+        Set the Account Name
+        '''
         self.name = name
 
     def get_name(self):
-        'Get the Account Name'
+        '''
+        Get the Account Name
+        '''
         return self.name
 
 
@@ -179,15 +183,22 @@ class Domain(db.Model):
         return '<Domain {} {}>'.format(self.domain_id, self.name)
 
     def set_name(self, name):
-        'Set the Domain Name'
+        '''
+        Set the Domain Name
+        '''
         self.name = name
 
     def get_name(self):
-        'Get the Domain Name'
+        '''
+        Get the Domain Name
+        '''
         return self.name
 
 
 class PaginatedAPIMixin(object):
+    '''
+    A template for paginated resource collections
+    '''
     @staticmethod
     def to_collection_dict(query, page, per_page, endpoint, **kwargs):
         resources = query.paginate(page, per_page, False)
