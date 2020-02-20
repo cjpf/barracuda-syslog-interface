@@ -1,7 +1,7 @@
 import jwt
 from datetime import datetime
 from time import time
-from flask import current_app
+from flask import current_app, url_for
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login
@@ -27,15 +27,21 @@ class User(UserMixin, db.Model):
         return '<User {}>'.format(self.email)
 
     def set_password(self, password):
-        'Set the users password'
+        '''
+        Set the users password
+        '''
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
-        'Check the users password'
+        '''
+        Check the users password
+        '''
         return check_password_hash(self.password_hash, password)
 
     def get_reset_password_token(self, expires_in=600):
-        'Generate one-time password reset token'
+        '''
+        Generate one-time password reset token
+        '''
         return jwt.encode(
             {
                 'reset_password': self.id,
@@ -43,6 +49,31 @@ class User(UserMixin, db.Model):
             },
             current_app.config['SECRET_KEY'], algorithm='HS256'
         ).decode('utf-8')
+
+    def to_dict(self):
+        '''
+        Converts a User object to a Python dict
+        This will later be converted to JSON format
+        '''
+        data = {
+            'id': self.id,
+            'email': self.email,
+            'last_seen': self.last_seen.isoformat() + 'Z',
+            '_links': {
+                'self': url_for('api.get_user', id=self.id)
+            }
+        }
+        return data
+
+    def from_dict(self, data, new_user=False):
+        '''
+        Converts a Python dict to a User object
+        '''
+        for field in ['email', 'last_seen']:
+            if field in data:
+                setattr(self, field, data[field])
+        if new_user and 'password' in data:
+            self.set_password(data['password'])  # TODO password
 
     @staticmethod
     def verify_reset_password_token(token):
