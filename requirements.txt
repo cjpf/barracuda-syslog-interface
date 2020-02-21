@@ -36,6 +36,7 @@ python-dateutil==2.8.1
 python-dotenv==0.11.0
 python-editor==1.0.4
 pytz==2019.3
+requests==2.23.0
 six==1.14.0
 SQLAlchemy==1.3.13
 tzlocal==2.0.0
