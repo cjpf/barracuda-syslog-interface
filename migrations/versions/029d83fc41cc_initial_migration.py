@@ -1,8 +1,8 @@
-"""Initial migration.
+"""initial migration.....
 
-Revision ID: 623c1a4f8eab
+Revision ID: 029d83fc41cc
 Revises: 
-Create Date: 2020-02-17 23:32:55.097338
+Create Date: 2020-02-22 01:49:45.200985
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '623c1a4f8eab'
+revision = '029d83fc41cc'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,21 +21,28 @@ def upgrade():
     op.create_table('account',
     sa.Column('account_id', sa.String(length=12), nullable=False),
     sa.Column('name', sa.String(length=128), nullable=True),
-    sa.PrimaryKeyConstraint('account_id')
-    )
-    op.create_table('domain',
-    sa.Column('domain_id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(length=128), nullable=True),
-    sa.PrimaryKeyConstraint('domain_id')
+    sa.PrimaryKeyConstraint('account_id'),
+    sa.UniqueConstraint('name')
     )
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('email', sa.String(length=120), nullable=True),
     sa.Column('password_hash', sa.String(length=128), nullable=True),
     sa.Column('last_seen', sa.DateTime(), nullable=True),
+    sa.Column('token', sa.String(length=32), nullable=True),
+    sa.Column('token_expiration', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_user_email'), 'user', ['email'], unique=True)
+    op.create_index(op.f('ix_user_token'), 'user', ['token'], unique=True)
+    op.create_table('domain',
+    sa.Column('domain_id', sa.Integer(), nullable=False),
+    sa.Column('account_id', sa.String(length=12), nullable=True),
+    sa.Column('name', sa.String(length=128), nullable=True),
+    sa.ForeignKeyConstraint(['account_id'], ['account.account_id'], ),
+    sa.PrimaryKeyConstraint('domain_id'),
+    sa.UniqueConstraint('name')
+    )
     op.create_table('message',
     sa.Column('message_id', sa.String(length=32), nullable=False),
     sa.Column('account_id', sa.String(length=12), nullable=True),
@@ -82,8 +89,9 @@ def downgrade():
     op.drop_table('attachment')
     op.drop_index(op.f('ix_message_src_ip'), table_name='message')
     op.drop_table('message')
+    op.drop_table('domain')
+    op.drop_index(op.f('ix_user_token'), table_name='user')
     op.drop_index(op.f('ix_user_email'), table_name='user')
     op.drop_table('user')
-    op.drop_table('domain')
     op.drop_table('account')
     # ### end Alembic commands ###

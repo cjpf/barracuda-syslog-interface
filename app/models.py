@@ -162,7 +162,11 @@ class Message(db.Model):
     '''
     message_id = db.Column(db.String(32), primary_key=True)
     account_id = db.Column(db.String(12), db.ForeignKey('account.account_id'))
+    account = db.relationship(
+        'Account', backref=db.backref('messages', lazy='dynamic'))
     domain_id = db.Column(db.String(12), db.ForeignKey('domain.domain_id'))
+    domain = db.relationship(
+        'Domain', backref=db.backref('messages', lazy='dynamic'))
     src_ip = db.Column(db.String(16), index=True)
     ptr_record = db.Column(db.String(128))
     hdr_from = db.Column(db.String(256))
@@ -269,6 +273,8 @@ class Domain(PaginatedAPIMixin, db.Model):
     '''
     domain_id = db.Column(db.Integer, primary_key=True)
     account_id = db.Column(db.String(12), db.ForeignKey('account.account_id'))
+    account = db.relationship(
+        'Account', backref=db.backref('domains', lazy='dynamic'))
     name = db.Column(db.String(128), unique=True)
 
     def __repr__(self):
