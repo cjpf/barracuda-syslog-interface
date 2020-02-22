@@ -260,3 +260,27 @@ class Domain(db.Model):
         Get the Domain Name
         '''
         return self.name
+
+    def to_dict(self):
+        '''
+        Converts a Domain object to a Python dict
+        This will later be converted to JSON format
+        For retrieving
+        '''
+        data = {
+            'domain_id': self.domain_id,
+            'name': self.name,
+            '_links': {
+                'self': url_for('api.get_domain', domain_id=self.domain_id)
+            }
+        }
+        return data
+
+    def from_dict(self, data):
+        '''
+        Converts a Python dict to a Domain object
+        For creating
+        '''
+        for field in ['domain_id', 'name']:
+            if field in data:
+                setattr(self, field, data[field])
