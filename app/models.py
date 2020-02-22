@@ -106,7 +106,7 @@ class User(PaginatedAPIMixin, UserMixin, db.Model):
             if field in data:
                 setattr(self, field, data[field])
         if new_user and 'password' in data:
-            self.set_password(data['password'])  # TODO password
+            self.set_password(data['password'])
 
     @staticmethod
     def verify_reset_password_token(token):
