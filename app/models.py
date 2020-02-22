@@ -268,6 +268,7 @@ class Domain(PaginatedAPIMixin, db.Model):
     This model represents a domain from an ESS account
     '''
     domain_id = db.Column(db.Integer, primary_key=True)
+    account_id = db.Column(db.String(12), db.ForeignKey('account.account_id'))
     name = db.Column(db.String(128), unique=True)
 
     def __repr__(self):
@@ -293,6 +294,7 @@ class Domain(PaginatedAPIMixin, db.Model):
         '''
         data = {
             'domain_id': self.domain_id,
+            'account_id': self.account_id,
             'name': self.name,
             '_links': {
                 'self': url_for('api.get_domain', domain_id=self.domain_id)
@@ -305,6 +307,6 @@ class Domain(PaginatedAPIMixin, db.Model):
         Converts a Python dict to a Domain object
         For creating
         '''
-        for field in ['domain_id', 'name']:
+        for field in ['domain_id', 'account_id', 'name']:
             if field in data:
                 setattr(self, field, data[field])
