@@ -58,8 +58,6 @@ def update_domain(domain_id):
     '''
     domain = Domain.query.get_or_404(domain_id)
     data = request.get_json() or {}
-    print(data)
-    print(domain)
     if 'name' in data and data['name'] != domain.name and \
             Domain.query.filter_by(name=data['name']).first():
         return bad_request('domain name already exists')
@@ -71,4 +69,11 @@ def update_domain(domain_id):
 @bp.route('/domains/<int:domain_id>', methods=['DELETE'])
 @token_auth.login_required
 def delete_domain(domain_id):
-    pass
+    '''
+    Remove a Domain
+    Returns a representation of the deleted item
+    '''
+    domain = Domain.query.get_or_404(domain_id)
+    db.session.delete(domain)
+    db.session.commit()
+    return jsonify(domain.to_dict())
