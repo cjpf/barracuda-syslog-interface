@@ -1,11 +1,13 @@
 from app import db
 from app.api import bp
 from app.api.errors import bad_request
+from app.api.auth import token_auth
 from app.models import User
 from flask import jsonify, request, url_for
 
 
 @bp.route('/users/<int:id>', methods=['GET'])
+@token_auth.login_required
 def get_user(id):
     '''
     Retrieve a single User
@@ -14,6 +16,7 @@ def get_user(id):
 
 
 @bp.route('/users', methods=['GET'])
+@token_auth.login_required
 def get_users():
     '''
     Retrieve collection of all users
@@ -48,7 +51,10 @@ def create_user():
 # This is a template for user PUT.  There is presently no User fields
 # that are able to be updated.
 # @bp.route('/users/<int:id>', methods=['PUT'])
+# @token_auth.login_required
 # def update_user(id):
+#     if g.current_user.id != id:
+#         abort(403)
 #     user = User.query.get_or_404(id)
 #     data = request.get_json() or {}
 #     if 'email' in data and data['email'] != user.email and \
@@ -60,6 +66,7 @@ def create_user():
 
 
 # There is presently no need to remove users from the application.
+# @token_auth.login_required
 # @bp.route('/users/<int:id>', methods=['DELETE'])
 # def delete_user(id):
 #     pass
