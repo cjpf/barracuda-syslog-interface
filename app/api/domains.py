@@ -50,13 +50,25 @@ def create_domain():
     return response
 
 
-@bp.route('/domains/<int:id>', methods=['PUT'])
+@bp.route('/domains/<int:domain_id>', methods=['PUT'])
 @token_auth.login_required
-def update_domain(id):
-    pass
+def update_domain(domain_id):
+    '''
+    Modify a Domain
+    '''
+    domain = Domain.query.get_or_404(domain_id)
+    data = request.get_json() or {}
+    print(data)
+    print(domain)
+    if 'name' in data and data['name'] != domain.name and \
+            Domain.query.filter_by(name=data['name']).first():
+        return bad_request('domain name already exists')
+    domain.from_dict(data)
+    db.session.commit()
+    return jsonify(domain.to_dict())
 
 
-@bp.route('/domains/<int:id>', methods=['DELETE'])
+@bp.route('/domains/<int:domain_id>', methods=['DELETE'])
 @token_auth.login_required
-def delete_domain(id):
+def delete_domain(domain_id):
     pass
