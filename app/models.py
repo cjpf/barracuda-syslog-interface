@@ -244,7 +244,7 @@ class Domain(PaginatedAPIMixin, db.Model):
     This model represents a domain from an ESS account
     '''
     domain_id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(128))
+    name = db.Column(db.String(128), unique=True)
 
     def __repr__(self):
         return '<Domain {} {}>'.format(self.domain_id, self.name)
