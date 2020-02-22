@@ -23,14 +23,31 @@ def get_domains():
     '''
     page = request.args.get('page', 1, type=int)
     per_page = min(request.args.get('per_page', 10, type=int), 100)
-    data = Domain.to_collection_dict(Domain.query, page, per_page, 'api.get_domains')
+    data = Domain.to_collection_dict(
+        Domain.query, page, per_page, 'api.get_domains')
     return jsonify(data)
 
 
 @bp.route('/domains', methods=['POST'])
 @token_auth.login_required
 def create_domain():
-    pass
+    '''
+    Create new Domain
+    '''
+    data = request.get_json() or {}
+    if 'domain_id' not in data:
+        return bad_request('must include domain_id')
+    if Domain.query.filter_by(domain_id=data['domain_id']).first():
+        return bad_request('domain_id already exists')
+    domain = Domain()
+    domain.from_dict(data)
+    db.session.add(domain)
+    db.session.commit()
+    response = jsonify(domain.to_dict())
+    response.status_code = 201
+    response.headers['Location'] = url_for(
+        'api.get_domain', domain_id=domain.domain_id)
+    return response
 
 
 @bp.route('/domains/<int:id>', methods=['PUT'])
