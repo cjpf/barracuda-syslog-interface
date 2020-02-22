@@ -35,8 +35,8 @@ def create_domain():
     Create new Domain
     '''
     data = request.get_json() or {}
-    if 'domain_id' not in data:
-        return bad_request('must include domain_id')
+    if 'domain_id' not in data and 'account_id' not in data:
+        return bad_request('must include domain_id and account_id')
     if Domain.query.filter_by(domain_id=data['domain_id']).first():
         return bad_request('domain_id already exists')
     domain = Domain()

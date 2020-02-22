@@ -140,7 +140,7 @@ def _store_domain(logger, data):
         return False
     else:
         logger.info("Domain ID NOT FOUND. Creating Domain.")
-        d = Domain(domain_id=data['domain_id'])
+        d = Domain(domain_id=data['domain_id'], account_id=data['account_id'])
         try:
             _add(d)
         except Exception as e:

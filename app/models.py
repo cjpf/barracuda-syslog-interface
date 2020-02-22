@@ -162,7 +162,11 @@ class Message(db.Model):
     '''
     message_id = db.Column(db.String(32), primary_key=True)
     account_id = db.Column(db.String(12), db.ForeignKey('account.account_id'))
+    account = db.relationship(
+        'Account', backref=db.backref('messages', lazy='dynamic'))
     domain_id = db.Column(db.String(12), db.ForeignKey('domain.domain_id'))
+    domain = db.relationship(
+        'Domain', backref=db.backref('messages', lazy='dynamic'))
     src_ip = db.Column(db.String(16), index=True)
     ptr_record = db.Column(db.String(128))
     hdr_from = db.Column(db.String(256))
@@ -214,13 +218,13 @@ class Attachment(db.Model):
                                                          self.message_id)
 
 
-class Account(db.Model):
+class Account(PaginatedAPIMixin, db.Model):
     '''
     Account Model
     This model represents an ESS account
     '''
     account_id = db.Column(db.String(12), primary_key=True)
-    name = db.Column(db.String(128))
+    name = db.Column(db.String(128), unique=True)
 
     def __repr__(self):
         return '<Account {} {}>'.format(self.account_id, self.name)
@@ -237,6 +241,30 @@ class Account(db.Model):
         '''
         return self.name
 
+    def to_dict(self):
+        '''
+        Converts an Account object to a Python dict
+        This will later be converted to JSON format
+        For retrieving
+        '''
+        data = {
+            'account_id': self.account_id,
+            'name': self.name,
+            '_links': {
+                'self': url_for('api.get_account', account_id=self.account_id)
+            }
+        }
+        return data
+
+    def from_dict(self, data):
+        '''
+        Converts a Python dict to an Account object
+        For creating
+        '''
+        for field in ['account_id', 'name']:
+            if field in data:
+                setattr(self, field, data[field])
+
 
 class Domain(PaginatedAPIMixin, db.Model):
     '''
@@ -244,6 +272,9 @@ class Domain(PaginatedAPIMixin, db.Model):
     This model represents a domain from an ESS account
     '''
     domain_id = db.Column(db.Integer, primary_key=True)
+    account_id = db.Column(db.String(12), db.ForeignKey('account.account_id'))
+    account = db.relationship(
+        'Account', backref=db.backref('domains', lazy='dynamic'))
     name = db.Column(db.String(128), unique=True)
 
     def __repr__(self):
@@ -269,6 +300,7 @@ class Domain(PaginatedAPIMixin, db.Model):
         '''
         data = {
             'domain_id': self.domain_id,
+            'account_id': self.account_id,
             'name': self.name,
             '_links': {
                 'self': url_for('api.get_domain', domain_id=self.domain_id)
@@ -281,6 +313,6 @@ class Domain(PaginatedAPIMixin, db.Model):
         Converts a Python dict to a Domain object
         For creating
         '''
-        for field in ['domain_id', 'name']:
+        for field in ['domain_id', 'account_id', 'name']:
             if field in data:
                 setattr(self, field, data[field])
