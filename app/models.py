@@ -238,7 +238,7 @@ class Account(db.Model):
         return self.name
 
 
-class Domain(db.Model):
+class Domain(PaginatedAPIMixin, db.Model):
     '''
     Domain Model
     This model represents a domain from an ESS account
