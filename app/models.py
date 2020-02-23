@@ -311,7 +311,7 @@ class Domain(PaginatedAPIMixin, db.Model):
     def from_dict(self, data):
         '''
         Converts a Python dict to a Domain object
-        For creating
+        For creating and setting values
         '''
         for field in ['domain_id', 'account_id', 'name']:
             if field in data:
