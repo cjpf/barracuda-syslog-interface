@@ -33,7 +33,7 @@ class BaseConfig(object):
             'trigger': 'cron',
             'day_of_week': '*',
             'hour': '*',
-            'minute': '5'
+            'minute': '*'
         }
     ]
     # SCHEDULER_JOBSTORES = {

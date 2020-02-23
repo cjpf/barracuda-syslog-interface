@@ -1,3 +1,4 @@
+import requests
 from datetime import datetime
 from flask import render_template, request, flash, redirect, url_for,\
     current_app
@@ -6,6 +7,9 @@ from app import db
 from app.settings import bp
 from app.settings.forms import SetDomainForm
 from app.models import Domain, Message
+
+
+BASE_URL = "http://localhost:5000"
 
 
 @bp.before_request
@@ -20,37 +24,59 @@ def before_request():
 @login_required
 def settings():
     'Settings Page for App configuration'
-    domains = Domain.query.all()
-    guesses = _calculate_guess()
+    url = '{}{}'.format(BASE_URL, url_for('api.get_domains'))
+    headers = {
+        'Authorization': 'Bearer {}'.format(current_user.token)
+    }
+    print(headers)
+    response = requests.get(url, headers=headers)
+    if (response.status_code != 200):
+        return 'Error'  # TODO Redirect to some Error HTML page
+    domains = response.json()['items']
+    unnamed_domains = _get_unnamed_domains(domains)
+    guesses = _calculate_guess(unnamed_domains)
     return render_template('settings/settings.html',
                            title='Settings',
                            domains=domains,
                            guesses=guesses)
 
 
-def _calculate_guess():
+def _get_unnamed_domains(domains):
+    '''
+    Takes a dict of domains
+    Returns a list of domains with no name
+    '''
+    unknown_domains = []
+    for domain in domains:
+        if domain['name'] is None:
+            unknown_domains.append(domain['domain_id'])
+    return unknown_domains
+
+
+def _calculate_guess(domains):
     '''
     Returns list of all guesses for unnamed domains
     '''
-    domains = Domain.query.filter_by(name=None).all()
     destinations = {}
     guesses = {}
     for domain in domains:
-        messages = Message.query.filter_by(domain_id=domain.domain_id).all()
+        messages = Message.query.filter_by(domain_id=domain).all()
         for message in messages:
             if message.dst_domain in destinations:
                 destinations[message.dst_domain] += 1
             else:
                 destinations[message.dst_domain] = 1
         max = 0
+        guess = 'None'
         for d in destinations.items():
             if d[1] > max:
                 max = d[1]
                 guess = d[0]
+        # if len(guess) > 0:
         current_app.logger.info(
             'The best guess for domain name to associate with {} is {}'
-            .format(domain.domain_id, guess))
-        guesses[domain.domain_id] = guess
+            .format(domain, guess))
+        guesses[domain] = guess
     return guesses
 
 
