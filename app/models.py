@@ -154,7 +154,7 @@ class User(PaginatedAPIMixin, UserMixin, db.Model):
         return user
 
 
-class Message(db.Model):
+class Message(PaginatedAPIMixin, db.Model):
     '''
     Message Model
     This model represents an email that passed through Barracuda Email
@@ -179,6 +179,51 @@ class Message(db.Model):
 
     def __repr__(self):
         return '<Message {}>'.format(self.message_id)
+
+    def to_dict(self):
+        '''
+        Converts a Message object to a Python dict
+        This will later be converted to JSON format
+        For retrieving
+        '''
+        data = {
+            'message_id': self.message_id,
+            'account_id': self.account_id,
+            'src_ip': self.src_ip,
+            'ptr_record': self.ptr_record,
+            'hdr_from': self.hdr_from,
+            'env_from': self.env_from,
+            'hdr_to': self.hdr_to,
+            'dst_domain': self.dst_domain,
+            'size': self.size,
+            'subject': self.subject,
+            'timestamp': self.timestamp,
+            '_links': {
+                'self': url_for('api.get_message', message_id=self.message_id)
+            }
+        }
+        return data
+
+    def from_dict(self, data):
+        '''
+        Converts a Python dict to a Message object
+        For creating Messages
+        '''
+        for field in [
+            'message_id',
+            'account_id',
+            'src_ip',
+            'ptr_record',
+            'hdr_from',
+            'env_from',
+            'hdr_to',
+            'dst_domain',
+            'size',
+            'subject',
+            'timestamp'
+        ]:
+            if field in data:
+                setattr(self, field, data[field])
 
 
 class Recipient(db.Model):
