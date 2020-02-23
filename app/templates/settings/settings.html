@@ -1,0 +1,56 @@
+{% extends "base.html" %} {% import 'bootstrap/wtf.html' as wtf %} {% block
+app_content %}
+
+<h1>Settings</h1>
+<h3>Domains</h3>
+<div class="container">
+  <table class="table table-sm">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">ID</th>
+        <th scope="col">Name</th>
+        <th scope="col">Options</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for domain in domains %} 
+      {% if domain.name %}
+      <tr class="bg-info">
+      {% else %}
+      <tr class="bg-danger">
+      {% endif %}
+
+        <th scope="row">{{ loop.index }}</th>
+
+        <td id='{{ domain.domain_id }}'>{{ domain.domain_id }}</td>
+
+        {% if domain.domain_id in guesses %}
+        <td class='{{ domain.name }}'>{{ guesses[domain.domain_id] }}</td>
+        {% else %}
+        <td class='{{ domain.name }}'>{{ domain.name }}</td>
+        {% endif %}
+
+        <td>
+          {% if domain.name %}
+          <a
+            href="{{ url_for('settings.set_domain', domain_id=domain.domain_id) }}"
+            class="btn btn-primary"
+            role="button"
+            >Set Domain Name</a
+          >
+          {% else %}
+          <a
+            href="{{ url_for('settings.set_domain', domain_id=domain.domain_id) }}"
+            class="btn btn-danger"
+            role="button"
+            >Set Domain Name</a
+          >
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
