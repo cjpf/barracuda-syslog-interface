@@ -1,0 +1,48 @@
+{% extends "base.html" %} {% import 'bootstrap/wtf.html' as wtf %} {% block
+app_content %}
+
+
+<h1>Messages</h1>
+<div class="container">
+  <table class="table">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Message ID</th>
+        <th scope="col">Subject</th>
+        <th scope="col">From</th>
+        <th scope="col">To</th>
+        <th scope="col">Size</th>
+        <th scope="col">Time</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for message in messages %}
+      <tr>
+        <th scope="row">{{ loop.index }}</th>
+        <td>{{ message.message_id }}</td>
+        <td>{{ message.subject }}</td>
+        <td>{{ message.env_from }}</td>
+        <td>{{ message.hdr_to }}</td>
+        <td>{{ message.size }}</td>
+        <td>{{ message.timestamp }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <nav aria-label="...">
+    <ul class="pager">
+      <li class="previous{% if not prev_url %} disabled{% endif %}">
+        <a href="{{ prev_url or '#' }}">
+          <span aria-hidden="true">&larr;</span>Newer Messages
+        </a>
+      </li>
+      <li class="next{% if not next_url %} disabled{% endif %}">
+        <a href="{{ next_url or '#' }}">
+          Older Messages <span aria-hidden="true">&rarr;</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>
+{% endblock %}
