@@ -3,22 +3,16 @@ import logging
 from logging.handlers import SMTPHandler, TimedRotatingFileHandler
 from flask import Flask
 from flask_login import LoginManager
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 from flask_moment import Moment
 from flask_mail import Mail
 from flask_bootstrap import Bootstrap
-from flask_apscheduler import APScheduler
 
 
 login = LoginManager()
 login.login_view = 'auth.login'
-db = SQLAlchemy()
-migrate = Migrate()
 moment = Moment()
 mail = Mail()
 bootstrap = Bootstrap()
-scheduler = APScheduler()
 
 
 def create_app(config_class):
@@ -45,14 +39,8 @@ def create_app(config_class):
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
 
-    from app.parse import bp as parse_bp
-    app.register_blueprint(parse_bp)
-
     from app.settings import bp as settings_bp
     app.register_blueprint(settings_bp)  # TODO add url_prefix
-
-    from app.api import bp as api_bp
-    app.register_blueprint(api_bp, url_prefix='/api')
 
     if not app.debug and not app.testing:
         if app.config['MAIL_SERVER']:
@@ -74,29 +62,17 @@ def create_app(config_class):
 
     if not os.path.exists('logs'):
         os.mkdir('logs')
-    if not app.config['JOB_CONFIG']:
-        file_handler = TimedRotatingFileHandler(
-            'logs/barracuda-syslog-tools.log',
-            when='D',
-            interval=1,
-            backupCount=14)
-        file_handler.setFormatter(logging.Formatter(
-            '%(asctime)s %(levelname)s: %(message)s \
-                [in %(pathname)s:%(lineno)d]'))
-        file_handler.setLevel(logging.INFO)
-        app.logger.addHandler(file_handler)
-        app.logger.setLevel(logging.INFO)
-        app.logger.info('barracuda-syslog-tools startup')
-    else:
-        app.logger.info('creating parse_log app')
-
-    if app.config['SCHEDULER_API_ENABLED']:
-        app.logger.info("Scheduler API Enabled.  Starting Scheduler...")
-        try:
-            scheduler.init_app(app)
-            scheduler.start()
-            app.logger.info(scheduler.get_jobs()[0])
-        except Exception as e:
-            app.logger.info(e)
+    file_handler = TimedRotatingFileHandler(
+        'logs/barracuda-syslog-tools.log',
+        when='D',
+        interval=1,
+        backupCount=14)
+    file_handler.setFormatter(logging.Formatter(
+        '%(asctime)s %(levelname)s: %(message)s \
+            [in %(pathname)s:%(lineno)d]'))
+    file_handler.setLevel(logging.INFO)
+    app.logger.addHandler(file_handler)
+    app.logger.setLevel(logging.INFO)
+    app.logger.info('app created')
 
     return app
